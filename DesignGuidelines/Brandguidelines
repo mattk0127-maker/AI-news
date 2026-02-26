@@ -1,0 +1,20 @@
+Colors
+Primary:
+#E9554D
+Accent:
+#E9554D
+Background:
+#FFFFFF
+Text Primary:
+#222222
+Link:
+#3898EC
+Fonts
+Suisseintl(body)
+Suisseworks(heading)
+Typography
+primary: Suisseintl
+heading: Suisseworks
+h1: 45px
+h2: 45px
+body: 16px
