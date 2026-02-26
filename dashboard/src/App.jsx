@@ -5,6 +5,8 @@ import './index.css'
 function App() {
   const [articles, setArticles] = useState([]);
 
+  const [viewMode, setViewMode] = useState('feed'); // 'feed' or 'saved'
+
   useEffect(() => {
     // Fetch live data from Supabase
     const fetchArticles = async () => {
@@ -50,34 +52,58 @@ function App() {
     }
   };
 
+  const displayedArticles = viewMode === 'feed'
+    ? articles
+    : articles.filter(a => a.is_saved);
+
   return (
     <div className="dashboard-container">
       <header className="header">
         <div className="logo">NewsFeed.</div>
+        <div className="tab-container">
+          <button
+            className={`tab-btn ${viewMode === 'feed' ? 'active' : ''}`}
+            onClick={() => setViewMode('feed')}
+          >
+            New Feed
+          </button>
+          <button
+            className={`tab-btn ${viewMode === 'saved' ? 'active' : ''}`}
+            onClick={() => setViewMode('saved')}
+          >
+            Saved Articles
+          </button>
+        </div>
         <button className="primary-btn">Sync Data</button>
       </header>
 
       <main>
-        <div className="article-grid">
-          {articles.map(article => (
-            <article key={article.id} className="article-card">
-              <span className="article-source">{article.source}</span>
-              <h3 className="article-title">{article.title}</h3>
-              <p className="article-summary">{article.summary}</p>
+        {displayedArticles.length === 0 ? (
+          <div className="empty-state">
+            <p>No articles found for this view.</p>
+          </div>
+        ) : (
+          <div className="article-grid">
+            {displayedArticles.map(article => (
+              <article key={article.id} className="article-card">
+                <span className="article-source">{article.source}</span>
+                <h3 className="article-title">{article.title}</h3>
+                <p className="article-summary">{article.summary}</p>
 
-              <div className="article-footer">
-                <a href={article.url} className="read-more">Read Full &rarr;</a>
-                <button
-                  className={`save-btn ${article.is_saved ? 'saved' : ''}`}
-                  onClick={() => toggleSave(article.id, article.is_saved)}
-                  aria-label="Save Article"
-                >
-                  {article.is_saved ? '♥' : '♡'}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="article-footer">
+                  <a href={article.url} target="_blank" rel="noreferrer" className="read-more">Read Full &rarr;</a>
+                  <button
+                    className={`save-btn ${article.is_saved ? 'saved' : ''}`}
+                    onClick={() => toggleSave(article.id, article.is_saved)}
+                    aria-label="Save Article"
+                  >
+                    {article.is_saved ? '♥' : '♡'}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )
