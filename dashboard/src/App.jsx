@@ -7,7 +7,12 @@ function App() {
   const [articles, setArticles] = useState([]);
 
   const [viewMode, setViewMode] = useState('feed'); // 'feed' or 'saved'
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchHistory, setSearchHistory] = useState(() => {
+    const saved = localStorage.getItem('searchHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showSuggestions, setShowSuggestions] = useState(false);
   useEffect(() => {
     // Fetch live data from Supabase
     const fetchArticles = async () => {
@@ -53,14 +58,60 @@ function App() {
     }
   };
 
-  const displayedArticles = viewMode === 'feed'
-    ? articles
-    : articles.filter(a => a.is_saved);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim() && !searchHistory.includes(searchQuery.trim())) {
+      const newHistory = [searchQuery.trim(), ...searchHistory].slice(0, 5);
+      setSearchHistory(newHistory);
+      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+    }
+    setShowSuggestions(false);
+  };
+
+  const displayedArticles = (viewMode === 'feed' ? articles : articles.filter(a => a.is_saved))
+    .filter(a =>
+      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.summary.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="dashboard-container">
       <header className="header">
         <div className="logo"><img src={logoUrl} alt="NewsFeed Logo" /></div>
+
+        <div className="search-container">
+          <form onSubmit={handleSearchSubmit} className="search-form">
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="search-input"
+            />
+            <button type="submit" className="search-icon-btn">🔍</button>
+          </form>
+          {showSuggestions && searchHistory.length > 0 && (
+            <ul className="search-suggestions">
+              <li className="suggestions-header">Recent Searches</li>
+              {searchHistory.map((item, index) => (
+                <li
+                  key={index}
+                  className="suggestion-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent blur
+                    setSearchQuery(item);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  <span className="history-icon">🕒</span> {item}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <div className="tab-container">
           <button
             className={`tab-btn ${viewMode === 'feed' ? 'active' : ''}`}
