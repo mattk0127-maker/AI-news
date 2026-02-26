@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 import './index.css'
+import logoUrl from './assets/logo.png'
 
 function App() {
   const [articles, setArticles] = useState([]);
@@ -59,7 +60,7 @@ function App() {
   return (
     <div className="dashboard-container">
       <header className="header">
-        <div className="logo">NewsFeed.</div>
+        <div className="logo"><img src={logoUrl} alt="NewsFeed Logo" /></div>
         <div className="tab-container">
           <button
             className={`tab-btn ${viewMode === 'feed' ? 'active' : ''}`}
