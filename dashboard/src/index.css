@@ -322,8 +322,9 @@ a:hover {
 
   .logo img {
     height: auto;
-    max-height: 64px;
-    /* Prevent massive logo on mobile */
+    max-height: 140px;
+    width: auto;
+    max-width: 100%;
   }
 
   .search-container {
